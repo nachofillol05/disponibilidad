@@ -1,53 +1,80 @@
 import requests
 from bs4 import BeautifulSoup
-import re
 import json
-from datetime import datetime, timedelta
+import re
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 
-URL = "https://www.temporadalivre.com/es/aluguel-temporada/brasil/rio-de-janeiro/arraial-do-cabo/prainha/143886-azotea-con-barbacoa-vista-al-mar-a-30-metros-de-la-playa-plaza-de-parking"
+# ================= CONFIG =================
+
+CALENDAR_URL = "https://www.temporadalivre.com/es/properties/143886-cobertura-com-churrasqueira-vista-ao-mar-30-metros-prainha-vaga-carro/calendar"
 
 HEADERS = {
-    "User-Agent": "Mozilla/5.0"
+    "User-Agent": "Mozilla/5.0",
+    "X-Requested-With": "XMLHttpRequest"
 }
 
-res = requests.get(URL, headers=HEADERS, timeout=20)
-res.raise_for_status()
+# ================= HELPERS =================
 
-soup = BeautifulSoup(res.text, "html.parser")
+def fetch_month(month_iso):
+    """Descarga el HTML del calendario para un mes"""
+    r = requests.post(
+        CALENDAR_URL,
+        data={"months[date]": month_iso},
+        headers=HEADERS,
+        timeout=20
+    )
+    r.raise_for_status()
+    return r.text
 
-today = datetime.today()
-limit_date = today + timedelta(days=365)
+
+def parse_calendar(html):
+    """Extrae fechas y precios disponibles de un HTML de calendario"""
+    soup = BeautifulSoup(html, "html.parser")
+    data = []
+
+    for day in soup.select("td.day"):
+        # Saltar no disponibles
+        if "unavailable" in day.get("class", []):
+            continue
+
+        title = day.get("title", "")
+        if "Disponible" not in title:
+            continue
+
+        fecha_match = re.search(r"(\d{2}/\d{2}/\d{4})", title)
+        precio_match = re.search(r"R\$ (\d+)", title)
+
+        if not fecha_match:
+            continue
+
+        data.append({
+            "date": datetime.strptime(
+                fecha_match.group(1),
+                "%d/%m/%Y"
+            ).strftime("%Y-%m-%d"),
+            "price": int(precio_match.group(1)) if precio_match else None
+        })
+
+    return data
+
+# ================= MAIN =================
+
+today = date.today().replace(day=1)
+months = [
+    (today + relativedelta(months=i)).isoformat()
+    for i in range(12)
+]
 
 disponibles = []
 
-for day in soup.select("#calendars-container td.day"):
-    classes = day.get("class", [])
+for month in months:
+    html = fetch_month(month)
+    disponibles.extend(parse_calendar(html))
 
-    # Saltar no disponibles
-    if "unavailable" in classes:
-        continue
-
-    title = day.get("title", "")
-
-    if "Disponible" not in title:
-        continue
-
-    fecha_match = re.search(r"(\d{2}/\d{2}/\d{4})", title)
-    precio_match = re.search(r"R\$ (\d+)", title)
-
-    if not fecha_match:
-        continue
-
-    fecha_dt = datetime.strptime(fecha_match.group(1), "%d/%m/%Y")
-
-    # Filtrar solo próximos 12 meses
-    if not (today <= fecha_dt <= limit_date):
-        continue
-
-    disponibles.append({
-        "date": fecha_dt.strftime("%Y-%m-%d"),
-        "price": int(precio_match.group(1)) if precio_match else None
-    })
+# Eliminar duplicados (por meses solapados)
+unique = {d["date"]: d for d in disponibles}
+disponibles = list(unique.values())
 
 # Ordenar por fecha
 disponibles.sort(key=lambda x: x["date"])
