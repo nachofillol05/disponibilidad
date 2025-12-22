@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Disponibilidad del Departamento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #020617;
+      --available: #22c55e;
+      --unavailable: #334155;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #020617, #000);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    .calendar {
+      max-width: 900px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 12px;
+    }
+
+    .day {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px;
+      min-height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .day:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+
+    .day.available {
+      border: 1px solid rgba(34,197,94,0.4);
+    }
+
+    .day.available::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(34,197,94,0.15), transparent 70%);
+      pointer-events: none;
+    }
+
+    .day.unavailable {
+      opacity: 0.45;
+    }
+
+    .date {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .price {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--available);
+    }
+
+    .unavailable .price {
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .legend {
+      max-width: 900px;
+      margin: 32px auto 0;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      font-size: 0.9rem;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+
+    .dot.green { background: var(--available); }
+    .dot.gray { background: var(--unavailable); }
+
+    @media (max-width: 600px) {
+      .calendar {
+        gap: 8px;
+      }
+      .day {
+        min-height: 75px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📅 Disponibilidad</h1>
+  <p>Calendario actualizado automáticamente</p>
+
+  <div id="calendar" class="calendar"></div>
+
+  <div class="legend">
+    <div><span class="dot green"></span>Disponible</div>
+    <div><span class="dot gray"></span>No disponible</div>
+  </div>
+
+  <script>
+    const calendarEl = document.getElementById("calendar");
+
+    async function loadAvailability() {
+      const res = await fetch("availability.json?ts=" + Date.now());
+      const data = await res.json();
+
+      const availableMap = new Map(
+        data.map(d => [d.date, d.price])
+      );
+
+      // Rango visible (ej: próximos 90 días)
+      const start = new Date();
+      const end = new Date();
+      end.setDate(end.getDate() + 90);
+
+      calendarEl.innerHTML = "";
+
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const iso = d.toISOString().split("T")[0];
+        const card = document.createElement("div");
+        card.className = "day";
+
+        const dateLabel = document.createElement("div");
+        dateLabel.className = "date";
+        dateLabel.textContent = d.toLocaleDateString("es-AR", {
+          day: "numeric",
+          month: "short"
+        });
+
+        const priceLabel = document.createElement("div");
+        priceLabel.className = "price";
+
+        if (availableMap.has(iso)) {
+          card.classList.add("available");
+          priceLabel.textContent = `$${availableMap.get(iso)}`;
+        } else {
+          card.classList.add("unavailable");
+          priceLabel.textContent = "No disponible";
+        }
+
+        card.appendChild(dateLabel);
+        card.appendChild(priceLabel);
+        calendarEl.appendChild(card);
+      }
+    }
+
+    loadAvailability();
+  </script>
+
+</body>
+</html>
