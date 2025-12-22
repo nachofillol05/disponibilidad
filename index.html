@@ -2,194 +2,263 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Disponibilidad del Departamento</title>
+  <title>Reserva tu Estadía</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
     :root {
-      --bg: #0f172a;
-      --card: #020617;
+      --bg: #020617;
+      --card: rgba(30, 41, 59, 0.4);
       --available: #22c55e;
+      --selected: #38bdf8; /* Azul Fachero */
       --unavailable: #334155;
-      --text: #e5e7eb;
+      --text: #f8fafc;
       --muted: #94a3b8;
-      --accent: #38bdf8;
     }
 
     * {
       box-sizing: border-box;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #020617, #000);
+      background: radial-gradient(circle at top, #0f172a, #020617);
       color: var(--text);
-      padding: 24px;
+      padding: 20px;
+      min-height: 100vh;
+      padding-bottom: 100px; /* Espacio para la barra flotante */
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
     }
 
     h1 {
-      text-align: center;
-      margin-bottom: 8px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-
-    p {
-      text-align: center;
-      color: var(--muted);
-      margin-bottom: 32px;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      background: linear-gradient(to bottom, #fff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .calendar {
-      max-width: 900px;
-      margin: auto;
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 12px;
     }
 
     .day {
       background: var(--card);
-      border-radius: 14px;
-      padding: 12px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 15px;
       min-height: 90px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      position: relative;
-      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      user-select: none;
     }
 
-    .day:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-
+    /* Día Disponible */
     .day.available {
-      border: 1px solid rgba(34,197,94,0.4);
+      border: 1px solid rgba(34, 197, 94, 0.2);
     }
 
-    .day.available::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at top, rgba(34,197,94,0.15), transparent 70%);
-      pointer-events: none;
+    .day.available:hover {
+      transform: translateY(-5px);
+      background: rgba(34, 197, 94, 0.1);
+      border-color: var(--available);
     }
 
+    /* Día Seleccionado */
+    .day.selected {
+      background: var(--selected) !important;
+      border-color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+
+    .day.selected .date, .day.selected .price {
+      color: #000 !important;
+    }
+
+    /* Día Ocupado */
     .day.unavailable {
-      opacity: 0.45;
+      opacity: 0.3;
+      cursor: not-allowed;
+      filter: grayscale(1);
     }
 
     .date {
-      font-size: 0.9rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
       color: var(--muted);
+      margin-bottom: 5px;
     }
 
     .price {
       font-size: 1.1rem;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--available);
     }
 
-    .unavailable .price {
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .legend {
-      max-width: 900px;
-      margin: 32px auto 0;
+    /* Barra de Acción Flotante */
+    .action-bar {
+      position: fixed;
+      bottom: -100px; /* Oculta por defecto */
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 15px 25px;
+      border-radius: 30px;
       display: flex;
-      justify-content: center;
-      gap: 24px;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+    }
+
+    .action-bar.visible {
+      bottom: 30px;
+    }
+
+    .info-selection {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-selection span:first-child {
       font-size: 0.9rem;
+      font-weight: 700;
     }
 
-    .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
+    .btn-wpp {
+      background: #25d366;
+      color: white;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: 0.3s;
     }
 
-    .dot.green { background: var(--available); }
-    .dot.gray { background: var(--unavailable); }
+    .btn-wpp:hover {
+      background: #1eb954;
+      transform: scale(1.05);
+    }
 
-    @media (max-width: 600px) {
-      .calendar {
-        gap: 8px;
-      }
-      .day {
-        min-height: 75px;
-      }
+    @media (max-width: 480px) {
+      .calendar { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
 
-  <h1>📅 Disponibilidad</h1>
-  <p>Calendario actualizado automáticamente</p>
+<div class="container">
+  <header>
+    <h1>Disponibilidad</h1>
+    <p style="color: var(--muted)">Tocá los días para seleccionarlos</p>
+  </header>
 
   <div id="calendar" class="calendar"></div>
+</div>
 
-  <div class="legend">
-    <div><span class="dot green"></span>Disponible</div>
-    <div><span class="dot gray"></span>No disponible</div>
+<div id="actionBar" class="action-bar">
+  <div class="info-selection">
+    <span id="countLabel">0 días elegidos</span>
+    <span style="font-size: 0.7rem; color: #ccc;">Presiona para reservar</span>
   </div>
+  <a id="wppLink" href="#" target="_blank" class="btn-wpp">
+    Enviar a WhatsApp
+  </a>
+</div>
 
-  <script>
-    const calendarEl = document.getElementById("calendar");
+<script>
+  const calendarEl = document.getElementById("calendar");
+  const actionBar = document.getElementById("actionBar");
+  const countLabel = document.getElementById("countLabel");
+  const wppLink = document.getElementById("wppLink");
 
-    async function loadAvailability() {
-      const res = await fetch("availability.json?ts=" + Date.now());
+  let selectedDates = [];
+  const MI_TELEFONO = "5491122334455"; // <--- CAMBIA ESTO CON TU NUMERO
+
+  async function init() {
+    try {
+      const res = await fetch("availability.json?v=" + Date.now());
       const data = await res.json();
+      render(data);
+    } catch (e) {
+      console.warn("No se encontró el JSON, usando datos de prueba.");
+      render([]); // Renderiza vacío o con una fecha de prueba
+    }
+  }
 
-      const availableMap = new Map(
-        data.map(d => [d.date, d.price])
-      );
-
-      // Rango visible (ej: próximos 90 días)
-      const start = new Date();
-      const end = new Date();
-      end.setDate(end.getDate() + 90);
-
-      calendarEl.innerHTML = "";
-
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const iso = d.toISOString().split("T")[0];
-        const card = document.createElement("div");
-        card.className = "day";
-
-        const dateLabel = document.createElement("div");
-        dateLabel.className = "date";
-        dateLabel.textContent = d.toLocaleDateString("es-AR", {
-          day: "numeric",
-          month: "short"
-        });
-
-        const priceLabel = document.createElement("div");
-        priceLabel.className = "price";
-
-        if (availableMap.has(iso)) {
-          card.classList.add("available");
-          priceLabel.textContent = `$${availableMap.get(iso)}`;
-        } else {
-          card.classList.add("unavailable");
-          priceLabel.textContent = "No disponible";
-        }
-
-        card.appendChild(dateLabel);
-        card.appendChild(priceLabel);
-        calendarEl.appendChild(card);
+  function render(data) {
+    const availableMap = new Map(data.map(d => [d.date, d.price]));
+    
+    // Generamos 30 días a partir de hoy
+    const start = new Date();
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i);
+      const iso = d.toISOString().split("T")[0];
+      
+      const card = document.createElement("div");
+      card.className = "day";
+      
+      const label = d.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+      
+      if (availableMap.has(iso)) {
+        card.classList.add("available");
+        card.innerHTML = `<div class="date">${label}</div><div class="price">$${availableMap.get(iso)}</div>`;
+        card.onclick = () => toggleSelection(iso, card);
+      } else {
+        card.classList.add("unavailable");
+        card.innerHTML = `<div class="date">${label}</div><div class="price">Ocupado</div>`;
       }
+      calendarEl.appendChild(card);
+    }
+  }
+
+  function toggleSelection(date, el) {
+    if (selectedDates.includes(date)) {
+      selectedDates = selectedDates.filter(d => d !== date);
+      el.classList.remove("selected");
+    } else {
+      selectedDates.push(date);
+      el.classList.add("selected");
     }
 
-    loadAvailability();
-  </script>
+    // Mostrar/Ocultar Barra y actualizar Link
+    if (selectedDates.length > 0) {
+      actionBar.classList.add("visible");
+      countLabel.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
+      
+      const texto = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para los siguientes días: ${selectedDates.sort().join(", ")}`);
+      wppLink.href = `https://wa.me/${MI_TELEFONO}?text=${texto}`;
+    } else {
+      actionBar.classList.remove("visible");
+    }
+  }
+
+  init();
+</script>
 
 </body>
 </html>
