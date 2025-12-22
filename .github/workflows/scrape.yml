@@ -17,12 +17,15 @@ jobs:
           python-version: "3.11"
 
       - run: pip install requests beautifulsoup4
-      - name: List files
-        run: ls -R
+     
+      
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
       
       - name: Run scraper
-        run: python scraper.py
-
+        run: python ./scraper.py
       - run: |
           git config user.name github-actions
           git config user.email actions@github.com
