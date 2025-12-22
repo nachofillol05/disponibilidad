@@ -7,8 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 # ================= CONFIG =================
 
-CALENDAR_URL = "https://www.temporadalivre.com/es/properties/143886/calendar"
-
+CALENDAR_URL = "https://www.temporadalivre.com/pt/properties/143886/calendar"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
@@ -18,10 +17,9 @@ HEADERS = {
 # ================= HELPERS =================
 
 def fetch_month(month_iso):
-    """Descarga el HTML del calendario para un mes"""
-    r = requests.post(
+    r = requests.get(
         CALENDAR_URL,
-        data={"months[date]": month_iso},
+        params={"months[date]": month_iso},
         headers=HEADERS,
         timeout=20
     )
@@ -30,17 +28,15 @@ def fetch_month(month_iso):
 
 
 def parse_calendar(html):
-    """Extrae fechas y precios disponibles de un HTML de calendario"""
     soup = BeautifulSoup(html, "html.parser")
     data = []
 
     for day in soup.select("td.day"):
-        # Saltar no disponibles
         if "unavailable" in day.get("class", []):
             continue
 
         title = day.get("title", "")
-        if "Disponible" not in title:
+        if "Disponible" not in title and "Disponível" not in title:
             continue
 
         fecha_match = re.search(r"(\d{2}/\d{2}/\d{4})", title)
@@ -70,14 +66,14 @@ months = [
 disponibles = []
 
 for month in months:
+    print(f"→ cargando {month}")
     html = fetch_month(month)
     disponibles.extend(parse_calendar(html))
 
-# Eliminar duplicados (por meses solapados)
+# Deduplicar
 unique = {d["date"]: d for d in disponibles}
 disponibles = list(unique.values())
 
-# Ordenar por fecha
 disponibles.sort(key=lambda x: x["date"])
 
 with open("availability.json", "w", encoding="utf-8") as f:
