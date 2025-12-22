@@ -2,170 +2,163 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Reserva tu Estadía</title>
+  <title>Reserva Premium</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     :root {
       --bg: #020617;
       --card: rgba(30, 41, 59, 0.4);
       --available: #22c55e;
-      --selected: #38bdf8; /* Azul Fachero */
+      --selected: #38bdf8;
       --unavailable: #334155;
       --text: #f8fafc;
       --muted: #94a3b8;
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
     body {
       margin: 0;
-      background: radial-gradient(circle at top, #0f172a, #020617);
+      background: #020617;
+      background-image: radial-gradient(circle at 50% -20%, #1e293b, #020617);
       color: var(--text);
       padding: 20px;
       min-height: 100vh;
-      padding-bottom: 100px; /* Espacio para la barra flotante */
+      padding-bottom: 120px;
     }
 
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .container { max-width: 500px; margin: 0 auto; }
 
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    header { text-align: center; margin-bottom: 30px; }
+    h1 { font-size: 1.8rem; margin: 0; background: linear-gradient(to right, #fff, var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 10px;
-      background: linear-gradient(to bottom, #fff, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .calendar {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 12px;
-    }
-
-    .day {
-      background: var(--card);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 15px;
-      min-height: 90px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    /* Día Disponible */
-    .day.available {
-      border: 1px solid rgba(34, 197, 94, 0.2);
-    }
-
-    .day.available:hover {
-      transform: translateY(-5px);
-      background: rgba(34, 197, 94, 0.1);
-      border-color: var(--available);
-    }
-
-    /* Día Seleccionado */
-    .day.selected {
-      background: var(--selected) !important;
-      border-color: #fff;
-      transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-    }
-
-    .day.selected .date, .day.selected .price {
-      color: #000 !important;
-    }
-
-    /* Día Ocupado */
-    .day.unavailable {
-      opacity: 0.3;
-      cursor: not-allowed;
-      filter: grayscale(1);
-    }
-
-    .date {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 5px;
-    }
-
-    .price {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: var(--available);
-    }
-
-    /* Barra de Acción Flotante */
-    .action-bar {
-      position: fixed;
-      bottom: -100px; /* Oculta por defecto */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 500px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 15px 25px;
-      border-radius: 30px;
+    .month-nav {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      margin-bottom: 20px;
+      background: var(--card);
+      padding: 8px 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .month-nav h2 { margin: 0; font-size: 1.1rem; text-transform: capitalize; font-weight: 500; }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+    .nav-btn:hover { background: var(--selected); color: #000; }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day {
+      aspect-ratio: 1/1;
+      background: var(--card);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.9rem;
+    }
+
+    .day.empty { background: transparent; border: none; cursor: default; }
+
+    /* Estilo para días Libres */
+    .day.available { 
+      border-color: rgba(34, 197, 94, 0.15); 
+    }
+    .day.available:hover { 
+      transform: scale(1.1); 
+      border-color: var(--available);
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    /* Estilo para días Seleccionados */
+    .day.selected {
+      background: var(--selected) !important;
+      color: #000;
+      font-weight: 800;
+      border-color: #fff;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Estilo para días Ocupados (vienen en el JSON) */
+    .day.unavailable {
+      opacity: 0.15;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    /* Barra Flotante */
+    .action-bar {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 20px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 1000;
     }
 
-    .action-bar.visible {
-      bottom: 30px;
-    }
-
-    .info-selection {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .info-selection span:first-child {
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
+    .action-bar.visible { bottom: 25px; }
 
     .btn-wpp {
       background: #25d366;
       color: white;
       text-decoration: none;
-      padding: 12px 20px;
-      border-radius: 20px;
+      padding: 10px 18px;
+      border-radius: 12px;
       font-weight: 700;
-      font-size: 0.9rem;
-      transition: 0.3s;
+      font-size: 0.85rem;
+      transition: 0.2s;
     }
+    .btn-wpp:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
 
-    .btn-wpp:hover {
-      background: #1eb954;
-      transform: scale(1.05);
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+      font-size: 0.75rem;
+      color: var(--muted);
     }
-
-    @media (max-width: 480px) {
-      .calendar { grid-template-columns: repeat(3, 1fr); }
-    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
   </style>
 </head>
 <body>
@@ -173,91 +166,129 @@
 <div class="container">
   <header>
     <h1>Disponibilidad</h1>
-    <p style="color: var(--muted)">Tocá los días para seleccionarlos</p>
   </header>
 
-  <div id="calendar" class="calendar"></div>
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
+    <h2 id="monthTitle"></h2>
+    <button class="nav-btn" onclick="changeMonth(1)">❯</button>
+  </div>
+
+  <div class="weekdays">
+    <div>LUN</div><div>MAR</div><div>MIE</div><div>JUE</div><div>VIE</div><div>SAB</div><div>DOM</div>
+  </div>
+
+  <div id="calendarGrid" class="calendar-grid"></div>
+
+  <div class="legend">
+    <span><span class="dot" style="background: var(--available)"></span>Libre</span>
+    <span><span class="dot" style="background: var(--unavailable)"></span>Ocupado</span>
+    <span><span class="dot" style="background: var(--selected)"></span>Tu selección</span>
+  </div>
 </div>
 
 <div id="actionBar" class="action-bar">
-  <div class="info-selection">
-    <span id="countLabel">0 días elegidos</span>
-    <span style="font-size: 0.7rem; color: #ccc;">Presiona para reservar</span>
+  <div>
+    <div id="countLabel" style="font-weight: 700; font-size: 0.9rem;">0 días</div>
+    <div style="font-size: 0.65rem; color: var(--muted);">Interesado en estos días...</div>
   </div>
-  <a id="wppLink" href="#" target="_blank" class="btn-wpp">
-    Enviar a WhatsApp
-  </a>
+  <a id="wppLink" href="#" target="_blank" class="btn-wpp">Consultar</a>
 </div>
 
 <script>
-  const calendarEl = document.getElementById("calendar");
-  const actionBar = document.getElementById("actionBar");
-  const countLabel = document.getElementById("countLabel");
-  const wppLink = document.getElementById("wppLink");
-
+  let currentMonth = new Date();
   let selectedDates = [];
-  const MI_TELEFONO = "5491122334455"; // <--- CAMBIA ESTO CON TU NUMERO
+  let unavailableDates = []; // Aquí se cargará tu lista de fechas ocupadas
+  const MI_TELEFONO = "5491122334455"; // <--- TU NÚMERO AQUÍ
 
-  async function init() {
+  async function loadData() {
     try {
       const res = await fetch("availability.json?v=" + Date.now());
-      const data = await res.json();
-      render(data);
+      // Ahora el JSON es directamente una lista ["2025-12-22", "2025-12-27", ...]
+      unavailableDates = await res.json();
     } catch (e) {
-      console.warn("No se encontró el JSON, usando datos de prueba.");
-      render([]); // Renderiza vacío o con una fecha de prueba
+      console.warn("No se pudo cargar availability.json. Asegúrate de que el archivo existe.");
     }
+    renderCalendar();
   }
 
-  function render(data) {
-    const availableMap = new Map(data.map(d => [d.date, d.price]));
-    
-    // Generamos 30 días a partir de hoy
-    const start = new Date();
-    for (let i = 0; i < 30; i++) {
-      const d = new Date(start);
-      d.setDate(d.getDate() + i);
-      const iso = d.toISOString().split("T")[0];
+  function renderCalendar() {
+    const grid = document.getElementById("calendarGrid");
+    const monthTitle = document.getElementById("monthTitle");
+    grid.innerHTML = "";
+
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    monthTitle.innerText = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentMonth);
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Ajuste lunes-domingo
+    let startingIndex = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < startingIndex; i++) {
+      grid.appendChild(Object.assign(document.createElement("div"), {className: "day empty"}));
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      // Formatear a YYYY-MM-DD manualmente para evitar desfases de zona horaria
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const iso = `${y}-${m}-${d}`;
       
       const card = document.createElement("div");
       card.className = "day";
-      
-      const label = d.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
-      
-      if (availableMap.has(iso)) {
-        card.classList.add("available");
-        card.innerHTML = `<div class="date">${label}</div><div class="price">$${availableMap.get(iso)}</div>`;
-        card.onclick = () => toggleSelection(iso, card);
-      } else {
+      card.innerText = day;
+
+      // Si la fecha ESTÁ en la lista, es un día ocupado
+      if (unavailableDates.includes(iso)) {
         card.classList.add("unavailable");
-        card.innerHTML = `<div class="date">${label}</div><div class="price">Ocupado</div>`;
+      } else {
+        card.classList.add("available");
+        if (selectedDates.includes(iso)) card.classList.add("selected");
+        card.onclick = () => toggleDate(iso);
       }
-      calendarEl.appendChild(card);
+      grid.appendChild(card);
     }
   }
 
-  function toggleSelection(date, el) {
-    if (selectedDates.includes(date)) {
-      selectedDates = selectedDates.filter(d => d !== date);
-      el.classList.remove("selected");
+  function toggleDate(iso) {
+    if (selectedDates.includes(iso)) {
+      selectedDates = selectedDates.filter(d => d !== iso);
     } else {
-      selectedDates.push(date);
-      el.classList.add("selected");
+      selectedDates.push(iso);
     }
+    renderCalendar();
+    updateBar();
+  }
 
-    // Mostrar/Ocultar Barra y actualizar Link
+  function updateBar() {
+    const bar = document.getElementById("actionBar");
+    const count = document.getElementById("countLabel");
+    const link = document.getElementById("wppLink");
+
     if (selectedDates.length > 0) {
-      actionBar.classList.add("visible");
-      countLabel.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
+      bar.classList.add("visible");
+      selectedDates.sort();
+      count.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
       
-      const texto = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para los siguientes días: ${selectedDates.sort().join(", ")}`);
-      wppLink.href = `https://wa.me/${MI_TELEFONO}?text=${texto}`;
+      const msg = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para los siguientes días: ${selectedDates.join(", ")}`);
+      link.href = `https://wa.me/${MI_TELEFONO}?text=${msg}`;
     } else {
-      actionBar.classList.remove("visible");
+      bar.classList.remove("visible");
     }
   }
 
-  init();
+  function changeMonth(diff) {
+    currentMonth.setMonth(currentMonth.getMonth() + diff);
+    renderCalendar();
+  }
+
+  loadData();
 </script>
 
 </body>
