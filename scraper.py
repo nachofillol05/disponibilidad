@@ -7,7 +7,8 @@ from dateutil.relativedelta import relativedelta
 
 # ================= CONFIG =================
 
-CALENDAR_URL = "https://www.temporadalivre.com/es/properties/143886-cobertura-com-churrasqueira-vista-ao-mar-30-metros-prainha-vaga-carro/calendar"
+CALENDAR_URL = "https://www.temporadalivre.com/es/properties/143886/calendar"
+
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
