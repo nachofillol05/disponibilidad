@@ -1,14 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
-
 import json
 
-
-URL = "https://www.temporadalivre.com/es/aluguel-temporada/brasil/rio-de-janeiro/arraial-do-cabo/prainha/143886-azotea-con-barbacoa-vista-al-mar-a-30-metros-de-la-playa-plaza-de-parking"
+URL = "https://www.temporadalivre.com/es/properties/143886-cobertura-com-churrasqueira-vista-ao-mar-30-metros-prainha-vaga-carro"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0"
-@@ -13,13 +15,38 @@
+}
+
+r = requests.get(URL, headers=HEADERS, timeout=20)
+r.raise_for_status()
 
 soup = BeautifulSoup(r.text, "html.parser")
 
