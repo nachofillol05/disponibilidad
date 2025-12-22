@@ -7,19 +7,23 @@ from dateutil.relativedelta import relativedelta
 
 # ================= CONFIG =================
 
-CALENDAR_URL = "https://www.temporadalivre.com/pt/properties/143886/calendar"
+CALENDAR_URL = (
+    "https://www.temporadalivre.com"
+    "/es/properties/143886-cobertura-com-churrasqueira-vista-ao-mar-30-metros-prainha-vaga-carro/calendar"
+)
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0",
-    "X-Requested-With": "XMLHttpRequest"
+    "X-Requested-With": "XMLHttpRequest",
+    "Referer": "https://www.temporadalivre.com/"
 }
 
 # ================= HELPERS =================
 
 def fetch_month(month_iso):
-    r = requests.get(
+    r = requests.post(
         CALENDAR_URL,
-        params={"months[date]": month_iso},
+        data={"months[date]": month_iso},
         headers=HEADERS,
         timeout=20
     )
@@ -36,7 +40,7 @@ def parse_calendar(html):
             continue
 
         title = day.get("title", "")
-        if "Disponible" not in title and "Disponível" not in title:
+        if "Disponible" not in title:
             continue
 
         fecha_match = re.search(r"(\d{2}/\d{2}/\d{4})", title)
@@ -70,7 +74,7 @@ for month in months:
     html = fetch_month(month)
     disponibles.extend(parse_calendar(html))
 
-# Deduplicar
+# deduplicar
 unique = {d["date"]: d for d in disponibles}
 disponibles = list(unique.values())
 
