@@ -198,16 +198,19 @@
 <script>
   let currentMonth = new Date();
   let selectedDates = [];
-  let unavailableDates = []; // Aquí se cargará tu lista de fechas ocupadas
-  const MI_TELEFONO = "5491122334455"; // <--- TU NÚMERO AQUÍ
+  let unavailableDates = []; 
+  const MI_TELEFONO = "543512604802"; // <--- TU NÚMERO AQUÍ
+
+  // Obtenemos la fecha de HOY a medianoche para comparar correctamente
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   async function loadData() {
     try {
       const res = await fetch("availability.json?v=" + Date.now());
-      // Ahora el JSON es directamente una lista ["2025-12-22", "2025-12-27", ...]
       unavailableDates = await res.json();
     } catch (e) {
-      console.warn("No se pudo cargar availability.json. Asegúrate de que el archivo existe.");
+      console.warn("No se pudo cargar availability.json");
     }
     renderCalendar();
   }
@@ -225,7 +228,6 @@
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // Ajuste lunes-domingo
     let startingIndex = firstDay === 0 ? 6 : firstDay - 1;
 
     for (let i = 0; i < startingIndex; i++) {
@@ -234,7 +236,8 @@
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateObj = new Date(year, month, day);
-      // Formatear a YYYY-MM-DD manualmente para evitar desfases de zona horaria
+      
+      // Formateo manual YYYY-MM-DD
       const y = dateObj.getFullYear();
       const m = String(dateObj.getMonth() + 1).padStart(2, '0');
       const d = String(dateObj.getDate()).padStart(2, '0');
@@ -244,14 +247,22 @@
       card.className = "day";
       card.innerText = day;
 
-      // Si la fecha ESTÁ en la lista, es un día ocupado
-      if (unavailableDates.includes(iso)) {
+      // --- LÓGICA DE BLOQUEO ---
+      // 1. Verificamos si es un día pasado
+      const isPast = dateObj < today;
+      
+      // 2. Verificamos si está en tu JSON de ocupados
+      const isBooked = unavailableDates.includes(iso);
+
+      if (isPast || isBooked) {
         card.classList.add("unavailable");
+        // No tiene onclick, así que no se puede elegir
       } else {
         card.classList.add("available");
         if (selectedDates.includes(iso)) card.classList.add("selected");
         card.onclick = () => toggleDate(iso);
       }
+      
       grid.appendChild(card);
     }
   }
@@ -276,7 +287,13 @@
       selectedDates.sort();
       count.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
       
-      const msg = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para los siguientes días: ${selectedDates.join(", ")}`);
+      // Formateamos las fechas para que el mensaje de WhatsApp sea más lindo (DD/MM)
+      const fechasLindas = selectedDates.map(f => {
+        const [y, m, d] = f.split("-");
+        return `${d}/${m}`;
+      });
+
+      const msg = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para estos días: ${fechasLindas.join(", ")}`);
       link.href = `https://wa.me/${MI_TELEFONO}?text=${msg}`;
     } else {
       bar.classList.remove("visible");
