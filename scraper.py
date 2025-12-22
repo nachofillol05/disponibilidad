@@ -1,13 +1,25 @@
+import requests
 from bs4 import BeautifulSoup
 import json
 
-html = open("page.html").read()
-soup = BeautifulSoup(html, "html.parser")
+URL = "https://www.temporadalivre.com/es/aluguel-temporada/brasil/rio-de-janeiro/arraial-do-cabo/prainha/143886-azotea-con-barbacoa-vista-al-mar-a-30-metros-de-la-playa-plaza-de-parking"
+
+HEADERS = {
+    "User-Agent": "Mozilla/5.0"
+}
+
+r = requests.get(URL, headers=HEADERS, timeout=20)
+r.raise_for_status()
+
+soup = BeautifulSoup(r.text, "html.parser")
 
 data_div = soup.find("div", {"data-behavior": "property-details-data"})
+if not data_div:
+    raise Exception("No se encontró property-details-data")
 
-unavailable_raw = data_div["data-unavailable-dates"]
-unavailable_dates = json.loads(unavailable_raw)
+unavailable = json.loads(data_div["data-unavailable-dates"])
 
-print(len(unavailable_dates))
-print(unavailable_dates[:5])
+with open("availability.json", "w", encoding="utf-8") as f:
+    json.dump(sorted(unavailable), f, indent=2)
+
+print(f"✔ availability.json generado ({len(unavailable)} fechas ocupadas)")
