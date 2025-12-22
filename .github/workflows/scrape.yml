@@ -26,9 +26,17 @@ jobs:
       
       - name: Run scraper
         run: python ./scraper.py
-      - run: |
-          git config user.name github-actions
-          git config user.email actions@github.com
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+      
+          if git diff --quiet; then
+            echo "No hay cambios, no se hace commit"
+            exit 0
+          fi
+      
           git add availability.json
-          git commit -m "update availability" || echo "no changes"
-          git push
+          git commit -m "update availability"
+          git pull --rebase origin main
+          git push origin main
