@@ -1,4 +1,4 @@
-name: Update availability
+name: Update data
 
 on:
   workflow_dispatch:
@@ -10,33 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - run: pip install requests beautifulsoup4 python-dateutil
-     
-      
-      - name: Debug files
+      - name: Install deps
+        run: pip install requests beautifulsoup4 python-dateutil
+
+      - name: Run scrapers
         run: |
-          pwd
-          ls -la
-      
-      - name: Run scraper
-        run: python ./scraper.py
-      - name: Commit and push if changed
+          python scraper.py
+          python scrape_reviews.py
+
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-      
+
+          git pull --rebase origin main
+
           if git diff --quiet; then
-            echo "No hay cambios, no se hace commit"
+            echo "No hay cambios"
             exit 0
           fi
-      
-          git add availability.json
-          git commit -m "update availability"
-          git pull --rebase origin main
+
+          git add availability.json reviews.json
+          git commit -m "update availability and reviews"
           git push origin main

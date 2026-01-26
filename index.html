@@ -160,6 +160,68 @@
       color: var(--muted);
     }
     .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+    /* REVIEWS SLIDER */
+
+.reviews-slider {
+  margin-top: 40px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-slide {
+  flex: 1;
+  background: rgba(15,23,42,0.7);
+  padding: 15px;
+  border-radius: 12px;
+  min-height: 150px;
+}
+
+.slide-btn {
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slide-btn:hover {
+  background: var(--selected);
+  color: black;
+}
+
+.review-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.review-date {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.review-stars {
+  color: gold;
+  font-size: 0.75rem;
+  margin: 5px 0;
+}
+
+.review-text {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
   </style>
 </head>
 <body>
@@ -186,6 +248,22 @@
     <span><span class="dot" style="background: var(--unavailable)"></span>Ocupado</span>
     <span><span class="dot" style="background: var(--selected)"></span>Tu selección</span>
   </div>
+
+  <section class="reviews-slider">
+
+  <h2>⭐ Opiniones</h2>
+
+  <div class="slider-wrapper">
+
+    <button class="slide-btn" onclick="prevReview()">❮</button>
+
+    <div id="reviewBox" class="review-slide"></div>
+
+    <button class="slide-btn" onclick="nextReview()">❯</button>
+
+  </div>
+
+</section>
 </div>
 
 <div id="actionBar" class="action-bar">
@@ -306,7 +384,51 @@
     renderCalendar();
   }
 
+  let reviews = [];
+let currentReview = 0;
+
+async function loadReviews() {
+  try {
+    const res = await fetch("reviews.json?v=" + Date.now());
+    reviews = await res.json();
+    renderReview();
+  } catch {
+    console.warn("No se pudieron cargar reviews");
+  }
+}
+
+function renderReview() {
+
+  if (!reviews.length) return;
+
+  const r = reviews[currentReview];
+
+  const box = document.getElementById("reviewBox");
+
+  box.innerHTML = `
+    <div class="review-name">${r.name}</div>
+    <div class="review-date">${r.date}</div>
+    <div class="review-stars">${"★".repeat(r.stars)}</div>
+    <div class="review-text">${r.text}</div>
+  `;
+}
+
+function nextReview() {
+  currentReview = (currentReview + 1) % reviews.length;
+  renderReview();
+}
+
+function prevReview() {
+  currentReview =
+    (currentReview - 1 + reviews.length) % reviews.length;
+  renderReview();
+}
+
+
   loadData();
+  loadReviews();
+  setInterval(nextReview, 4500);
+
 </script>
 
 </body>
