@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -21,6 +23,13 @@ jobs:
       - name: Install deps
         run: pip install requests beautifulsoup4 python-dateutil
 
+      # ⬇️ Pull ANTES de tocar archivos
+      - name: Sync with remote
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git pull origin main --rebase
+
       - name: Run scrapers
         run: |
           python scraper.py
@@ -28,16 +37,11 @@ jobs:
 
       - name: Commit and push
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git pull --rebase origin main
-
           if git diff --quiet; then
             echo "No hay cambios"
             exit 0
           fi
 
           git add availability.json reviews.json
-          git commit -m "update availability and reviews"
+          git commit -m "update data"
           git push origin main
