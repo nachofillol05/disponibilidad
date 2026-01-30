@@ -1,435 +1,496 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Reserva</title>
-  <link rel="icon" type="image/jpeg" href="./arraialLogo.jpeg">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
-    :root {
-      --bg: #020617;
-      --card: rgba(30, 41, 59, 0.4);
-      --available: #22c55e;
-      --selected: #38bdf8;
-      --unavailable: #334155;
-      --text: #f8fafc;
-      --muted: #94a3b8;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arraial para Argentinos | La Guía</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; -webkit-font-smoothing: antialiased; }
+        
+        /* Navegación Glassmorphism */
+        .glass-nav { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        
+        /* Tabs Activos */
+        .tab-btn { opacity: 0.6; transition: all 0.3s; border-bottom: 3px solid transparent; }
+        .tab-active { opacity: 1; color: #0284c7; border-bottom: 3px solid #0284c7; }
+        
+        /* Diseño de Tarjetas Unificado */
+        .card { 
+            background: white; 
+            border-radius: 24px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
+            display: flex; flex-direction: column;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border-color: #bfdbfe; }
+        
+        /* Etiquetas y Chips */
+        .tag { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 8px; border-radius: 6px; }
+        .tag-blue { background: #eff6ff; color: #1d4ed8; }
+        .tag-red { background: #fef2f2; color: #b91c1c; }
+        .tag-green { background: #f0fdf4; color: #15803d; }
+        .tag-yellow { background: #fefce8; color: #a16207; }
 
-    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        /* Botón Mapa */
+        .btn-map { 
+            margin-top: auto; 
+            background: #0f172a; 
+            color: white; 
+            padding: 12px; 
+            border-radius: 16px; 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background 0.2s;
+        }
+        .btn-map:hover { background: #2563eb; }
 
-    body {
-      margin: 0;
-      background: #020617;
-      background-image: radial-gradient(circle at 50% -20%, #1e293b, #020617);
-      color: var(--text);
-      padding: 20px;
-      min-height: 100vh;
-      padding-bottom: 120px;
-    }
-
-    .container { max-width: 500px; margin: 0 auto; }
-
-    header { text-align: center; margin-bottom: 30px; }
-    h1 { font-size: 1.8rem; margin: 0; background: linear-gradient(to right, #fff, var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-    .month-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-      background: var(--card);
-      padding: 8px 15px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .month-nav h2 { margin: 0; font-size: 1.1rem; text-transform: capitalize; font-weight: 500; }
-
-    .nav-btn {
-      background: rgba(255,255,255,0.05);
-      border: none;
-      color: white;
-      width: 35px;
-      height: 35px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: 0.2s;
-    }
-    .nav-btn:hover { background: var(--selected); color: #000; }
-
-    .weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      font-size: 0.65rem;
-      color: var(--muted);
-      margin-bottom: 10px;
-      font-weight: 800;
-      letter-spacing: 1px;
-    }
-
-    .calendar-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-    }
-
-    .day {
-      aspect-ratio: 1/1;
-      background: var(--card);
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid rgba(255,255,255,0.03);
-      font-size: 0.9rem;
-    }
-
-    .day.empty { background: transparent; border: none; cursor: default; }
-
-    /* Estilo para días Libres */
-    .day.available { 
-      border-color: rgba(34, 197, 94, 0.15); 
-    }
-    .day.available:hover { 
-      transform: scale(1.1); 
-      border-color: var(--available);
-      background: rgba(34, 197, 94, 0.05);
-    }
-
-    /* Estilo para días Seleccionados */
-    .day.selected {
-      background: var(--selected) !important;
-      color: #000;
-      font-weight: 800;
-      border-color: #fff;
-      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
-    }
-
-    /* Estilo para días Ocupados (vienen en el JSON) */
-    .day.unavailable {
-      opacity: 0.15;
-      cursor: not-allowed;
-      text-decoration: line-through;
-    }
-
-    /* Barra Flotante */
-    .action-bar {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      max-width: 400px;
-      background: rgba(15, 23, 42, 0.85);
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255,255,255,0.1);
-      padding: 12px 20px;
-      border-radius: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 1000;
-    }
-
-    .action-bar.visible { bottom: 25px; }
-
-    .btn-wpp {
-      background: #25d366;
-      color: white;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 12px;
-      font-weight: 700;
-      font-size: 0.85rem;
-      transition: 0.2s;
-    }
-    .btn-wpp:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
-
-    .legend {
-      display: flex;
-      justify-content: center;
-      gap: 15px;
-      margin-top: 25px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-
-    /* REVIEWS SLIDER */
-
-.reviews-slider {
-  margin-top: 40px;
-  background: var(--card);
-  border-radius: 20px;
-  padding: 20px;
-  border: 1px solid rgba(255,255,255,0.05);
-  text-align: center;
-}
-
-.slider-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.review-slide {
-  flex: 1;
-  background: rgba(15,23,42,0.7);
-  padding: 15px;
-  border-radius: 12px;
-  min-height: 150px;
-}
-
-.slide-btn {
-  background: rgba(255,255,255,0.05);
-  border: none;
-  color: white;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.slide-btn:hover {
-  background: var(--selected);
-  color: black;
-}
-
-.review-name {
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.review-date {
-  font-size: 0.65rem;
-  color: var(--muted);
-}
-
-.review-stars {
-  color: gold;
-  font-size: 0.75rem;
-  margin: 5px 0;
-}
-
-.review-text {
-  font-size: 0.75rem;
-  line-height: 1.4;
-}
-
-  </style>
+        /* Scroll oculto */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Botón Flotante */
+        #floatingHome {
+            position: fixed; bottom: 25px; right: 20px; z-index: 90;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: scale(0);
+        }
+        #floatingHome.show { transform: scale(1); }
+    </style>
 </head>
-<body>
+<body class="pb-32">
 
-<div class="container">
-  <header>
-    <h1>Disponibilidad</h1>
-  </header>
+    <header class="relative bg-slate-900 pt-12 pb-20 px-6 rounded-b-[50px] overflow-hidden shadow-2xl text-center">
+        <img src="https://images.unsplash.com/photo-1590523278191-995cbcda646b?auto=format&fit=crop&w=1000" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        <div class="relative z-10 max-w-2xl mx-auto">
+            <img src="/arraialLogo.jpeg" alt="Logo" class="h-20 mx-auto mb-4 drop-shadow-lg">
+            
+            <h1 class="text-3xl font-extrabold text-white tracking-tighter uppercase"><span class="text-cyan-400">Arraial</span> para <span class="text-cyan-400">Argentinos</span></h1>
+            <p class="text-slate-200 text-sm mt-2 font-medium">La guía más completa de la zona</p>
+            
+            <a href="/disponibilidad/" target="_blank" class="inline-block mt-6 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white transition shadow-xl">
+                🗓️ Consultar disponibilidad
+            </a>
+        </div>
+    </header>
 
-  <div class="month-nav">
-    <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
-    <h2 id="monthTitle"></h2>
-    <button class="nav-btn" onclick="changeMonth(1)">❯</button>
-  </div>
+    <div class="max-w-5xl mx-auto px-6 -mt-6 relative z-20">
+        <div class="bg-white p-2 rounded-2xl shadow-xl flex items-center border border-slate-100">
+            <span class="pl-4 text-xl">🔍</span>
+            <input type="text" id="searchInput" placeholder="Buscá: 'Tortugas', 'Caipi', 'Eduardo'..." class="w-full p-3 outline-none text-slate-700 font-medium rounded-xl">
+        </div>
+    </div>
 
-  <div class="weekdays">
-    <div>LUN</div><div>MAR</div><div>MIE</div><div>JUE</div><div>VIE</div><div>SAB</div><div>DOM</div>
-  </div>
+    <nav class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 mt-6">
+        <div class="flex overflow-x-auto no-scrollbar max-w-5xl mx-auto px-2">
+            <button onclick="switchTab('playas')" id="btn-playas" class="tab-btn tab-active flex-none px-6 py-4 font-bold text-sm uppercase tracking-wide">🏖️ Playas</button>
+            <button onclick="switchTab('comer')" id="btn-comer" class="tab-btn flex-none px-6 py-4 font-bold text-sm uppercase tracking-wide">🍴 Comer</button>
+            <button onclick="switchTab('logistica')" id="btn-logistica" class="tab-btn flex-none px-6 py-4 font-bold text-sm uppercase tracking-wide">🚕 Logística</button>
+            <button onclick="switchTab('paseos')" id="btn-paseos" class="tab-btn flex-none px-6 py-4 font-bold text-sm uppercase tracking-wide">⛵ Paseos</button>
+        </div>
+    </nav>
 
-  <div id="calendarGrid" class="calendar-grid"></div>
+    <main class="max-w-5xl mx-auto p-4 md:p-6 mt-4 min-h-screen">
 
-  <div class="legend">
-    <span><span class="dot" style="background: var(--available)"></span>Libre</span>
-    <span><span class="dot" style="background: var(--unavailable)"></span>Ocupado</span>
-    <span><span class="dot" style="background: var(--selected)"></span>Tu selección</span>
-  </div>
+        <div id="tab-playas" class="section-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="card group">
+                <span class="hidden">playa mar sol arena buceo tortugas agua prainha nadar snorkeling</span>
+                <div class="h-48 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <span class="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded">📍 A 1 MINUTO</span>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Prainha</h3>
+                    <p class="text-sm text-slate-600 mt-2 mb-4 leading-relaxed">Es la playa del depto. Tranquila, pocas olas. Perfecta para buceo en ambas puntas.</p>
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-start gap-2 text-xs text-slate-600">
+                            <span class="text-lg">🐢</span>
+                            <p><strong>Tortugas:</strong> Sobre todo a la derecha mirando al mar. Mucha fauna marina.</p>
+                        </div>
+                        <div class="flex items-start gap-2 text-xs text-slate-600">
+                            <span class="text-lg">🎣</span>
+                            <p><strong>Pescadores:</strong> En la esquina derecha. Pescadería de Bira (camarones frescos).</p>
+                        </div>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Prainha+Arraial+do+Cabo" target="_blank" class="btn-map">🗺️ Ver Ubicación</a>
+                </div>
+            </div>
 
-  <section class="reviews-slider">
+            <div class="card group">
+                <span class="hidden">playa mar sol arena pontal atalaia escalera escalera auto 5am cola taxi entrada</span>
+                <div class="h-48 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1589909202802-8f4aadce1849?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">⚠️ CUPO LIMITADO</span>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Pontal do Atalaia</h3>
+                    <p class="text-sm text-slate-600 mt-2 italic">"La mejor playa, tiempo ilimitado".</p>
+                    
+                    <div class="bg-slate-50 p-3 rounded-xl mt-3 mb-3 border border-slate-100">
+                        <p class="text-xs font-bold text-slate-800 uppercase mb-1">🚗 Si vas en Auto:</p>
+                        <p class="text-xs text-slate-600">Hacer cola a las <strong>5:00 AM</strong>. Cupo limitado. Tasa de ingreso R$20.</p>
+                    </div>
 
-  <h2>⭐ Opiniones</h2>
+                    <div class="space-y-2 mb-4 text-xs text-slate-600">
+                        <p>🚫 <strong>Prohibido:</strong> Parlantes, pelotas y botellas de vidrio.</p>
+                        <p>🌊 <strong>Accesos:</strong> Barco taxi, Vehículo o "Paseo de barco".</p>
+                        <p>🚶 <strong>A pie/Uber:</strong> Uber te deja en la entrada. Caminata de 3km (dura). Se puede bajar en "Taxi comunitario" (6 personas).</p>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Pontal+do+Atalaia+Arraial" target="_blank" class="btn-map">🗺️ Ver Entrada</a>
+                </div>
+            </div>
 
-  <div class="slider-wrapper">
+            <div class="card group">
+                <span class="hidden">playa mar sol arena forno sendero caminata trekking barco taxi buceo snorkel transparente</span>
+                <div class="h-48 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <span class="absolute top-3 left-3 bg-emerald-600 text-white text-[10px] font-bold px-2 py-1 rounded">🌿 ZONA PROTEGIDA</span>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Praia do Forno</h3>
+                    <p class="text-sm text-slate-600 mt-2 mb-3">Aguas cristalinas y arena blanca. Snorkel increíble en la punta derecha.</p>
+                    <div class="space-y-2 mb-4 text-xs">
+                        <p class="flex items-center gap-2"><span class="tag tag-green">Acceso 1</span> Sendero con trepada (15 min) desde el puerto.</p>
+                        <p class="flex items-center gap-2"><span class="tag tag-blue">Acceso 2</span> Barco Taxi.</p>
+                        <p class="text-red-500 font-bold mt-2">🚫 Prohibido: Parlantes, vidrio y pelotas.</p>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+do+Forno+Arraial" target="_blank" class="btn-map">🗺️ Ver Sendero</a>
+                </div>
+            </div>
 
-    <button class="slide-btn" onclick="prevReview()">❮</button>
+            <div class="card group">
+                <span class="hidden">playa mar sol arena grande sunset atardecer olas surf boulevard noche caminar</span>
+                <div class="h-48 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1473116763249-56381559e355?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <span class="absolute top-3 left-3 bg-yellow-400 text-slate-900 text-[10px] font-bold px-2 py-1 rounded">🌅 ATARDECER</span>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Praia Grande</h3>
+                    <p class="text-sm text-slate-600 mt-2 mb-3">54 km de largo. Mar abierto con olas importantes (salvo viento a favor). <strong>EL lugar para ver el atardecer.</strong></p>
+                    <p class="text-xs text-slate-500 mb-4">Tiene un boulevard muy lindo con restaurantes y movida nocturna. Caminando son 25 min desde el depto.</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+Grande+Arraial+do+Cabo" target="_blank" class="btn-map">🗺️ Ver Boulevard</a>
+                </div>
+            </div>
 
-    <div id="reviewBox" class="review-slide"></div>
+            <div class="card group">
+                <span class="hidden">playa mar sol arena gracainha tortugas escondida tranquilo sendero</span>
+                <div class="h-48 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1544949392-99ca09148d88?auto=format&fit=crop&w=600" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    <span class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded">🐢 TORTUGAS</span>
+                </div>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Praia da Graçainha</h3>
+                    <p class="text-sm text-slate-600 mt-2 mb-3">Playita escondida y muy tranquila. Ves tortugas sin entrar al agua.</p>
+                    <p class="text-xs text-slate-500 mb-4"><strong>Cómo llegar:</strong> Desde Prainha a la derecha, pasás la pescadería, atravesás el restaurante "Anchova na Brasa" y seguís un senderito de 700m.</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+da+Graçainha" target="_blank" class="btn-map">🗺️ Ubicación Aprox</a>
+                </div>
+            </div>
 
-    <button class="slide-btn" onclick="nextReview()">❯</button>
+            <div class="card group">
+                <span class="hidden">playa mar sol brava difícil guía atardecer olas aventura</span>
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-slate-800">Praia Brava</h3>
+                    <span class="tag tag-red w-max mt-2">Difícil Acceso</span>
+                    <p class="text-sm text-slate-600 mt-3 mb-3">Escondida y chiquita. Da al mar abierto. En invierno el agua la tapa.</p>
+                    <ul class="text-xs text-slate-600 space-y-2 mb-4 list-disc pl-4">
+                        <li>Recomendamos ir con guía.</li>
+                        <li>Se puede ver el atardecer después de las 17hs.</li>
+                        <li>Camino al Pontal.</li>
+                    </ul>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Praia+Brava+Arraial+do+Cabo" target="_blank" class="btn-map">🗺️ Ver Mapa</a>
+                </div>
+            </div>
 
-  </div>
+        </div>
 
-</section>
-</div>
+        <div id="tab-comer" class="section-content hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="card border-l-4 border-l-yellow-400">
+                <span class="hidden">comer almuerzo cena restaurante gringo caipirinha trago bebida alcohol hambre cenar almorzar argentino</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Bar do Gringo</h3>
+                        <span class="text-3xl">🍹</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">Ubicado casi en la playa, después de los barcos de pescadores. Gustavo y Sergio (Argentinos).</p>
+                    <div class="bg-yellow-50 p-4 rounded-xl mt-4 border border-yellow-100">
+                        <div class="flex justify-between font-bold text-slate-800 mb-1"><span>Caipirinha</span><span>R$ 10</span></div>
+                        <div class="flex justify-between font-bold text-slate-800"><span>Caipi Maracuyá</span><span>R$ 20</span></div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2 italic">"Deciles que van de parte nuestra".</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Bar+do+Gringo+Prainha" target="_blank" class="btn-map mt-4">📍 Ir al Bar</a>
+                </div>
+            </div>
 
-<div id="actionBar" class="action-bar">
-  <div>
-    <div id="countLabel" style="font-weight: 700; font-size: 0.9rem;">0 días</div>
-    <div style="font-size: 0.65rem; color: var(--muted);">Interesado en estos días...</div>
-  </div>
-  <a id="wppLink" href="#" target="_blank" class="btn-wpp">Consultar</a>
-</div>
+            <div class="card border-l-4 border-l-blue-400">
+                <span class="hidden">comer desayuno mañana libre buffet ocean view hotel hambre</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Desayuno Libre</h3>
+                        <span class="text-3xl">☕</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2"><strong>Hotel Ocean View:</strong> Desayuno estilo brasilero sobre la playa en Prainha.</p>
+                    <div class="bg-blue-50 p-4 rounded-xl mt-4 text-center">
+                        <p class="text-2xl font-bold text-blue-700">R$ 38,50</p>
+                        <p class="text-xs text-blue-600 uppercase font-bold">Por persona / Libre</p>
+                    </div>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Ocean+View+Arraial" target="_blank" class="btn-map mt-4">📍 Ver Hotel</a>
+                </div>
+            </div>
 
-<script>
-  let currentMonth = new Date();
-  let selectedDates = [];
-  let unavailableDates = []; 
-  const MI_TELEFONO = "543515472701"; // <--- TU NÚMERO AQUÍ
+            <div class="card border-l-4 border-l-green-500">
+                <span class="hidden">comer cena delivery casa pedir sanduba hamburguesa salgado whatsapp hambre noche</span>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-4">🛵 Delivery</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Sanduba Hamburguesas</p>
+                                <p class="text-xs text-slate-500">+55 22 99974-8969</p>
+                            </div>
+                            <a href="https://wa.me/5522999748969" class="bg-green-500 text-white p-2 rounded-lg text-xs font-bold">WhatsApp</a>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-bold text-slate-800">Salgado & Hamburguesas</p>
+                                <p class="text-xs text-slate-500">+55 22 99714-1940</p>
+                            </div>
+                            <a href="https://wa.me/5522997141940" class="bg-green-500 text-white p-2 rounded-lg text-xs font-bold">WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-  // Obtenemos la fecha de HOY a medianoche para comparar correctamente
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+            <div class="card border-l-4 border-l-blue-400">
+                <span class="hidden">comer cena almuerzo hamburguesa top brasa carne hambre restaurante</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Top Brasa</h3>
+                        <span class="text-3xl">🍔</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">Hamburguesas (10-00hs).</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Ocean+View+Arraial" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
+                </div>
+            </div>
+            <div class="card border-l-4 border-l-blue-400">
+                <span class="hidden">comer almuerzo pollo frango rotiseria mediodía vianda quentinha kilo hambre</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Frango Dourado</h3>
+                        <span class="text-3xl">🍗</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">Solo mediodía h/16hs. Pollo por kilo o vianda ("Quentinha") para llevar.</p>
 
-  async function loadData() {
-    try {
-      const res = await fetch("availability.json?v=" + Date.now());
-      unavailableDates = await res.json();
-    } catch (e) {
-      console.warn("No se pudo cargar availability.json");
-    }
-    renderCalendar();
-  }
+                    <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Ocean+View+Arraial" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
+                </div>
+            </div>
+            <div class="card border-l-4 border-l-blue-400">
+                <span class="hidden">comer almuerzo cena restaurante gentileza hambre gourmet</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Restaurante Gentileza</h3>
+                        <span class="text-3xl">🍽️</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">Frente al edificio, puerta lejos de la playa (11-00hs).</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Ocean+View+Arraial" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
+                </div>
+            </div>
+            <div class="card border-l-4 border-l-blue-400">
+                <span class="hidden">comer almuerzo cena restaurante prainha gourmet hambre boulevard</span>
+                <div class="p-6">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-xl font-bold text-slate-800">Prainha Gourmet</h3>
+                        <span class="text-3xl">👨‍🍳</span>
+                    </div>
+                    <p class="text-sm text-slate-600 mt-2">Restaurante en el Boulevard (11-00hs).</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Hotel+Ocean+View+Arraial" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
+                </div>
+            </div>
 
-  function renderCalendar() {
-    const grid = document.getElementById("calendarGrid");
-    const monthTitle = document.getElementById("monthTitle");
-    grid.innerHTML = "";
+        </div>
 
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
+        <div id="tab-logistica" class="section-content hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="card bg-slate-900 text-white">
+                <span class="hidden">transporte taxi auto eduardo traslado viaje pontal puerta vecino</span>
+                <div class="p-6">
+                    <span class="text-5xl mb-2 block">🚕</span>
+                    <h3 class="text-xl font-bold text-yellow-400">Eduardo (Taxi)</h3>
+                    <p class="text-sm text-slate-300 mt-2">Vecino nuestro (vive justo en la puerta). Está autorizado a entrar al Pontal con su taxi.</p>
+                    <p class="text-xs text-slate-400 mt-2">Vas directo desde el depto al Pontal.</p>
+                    <a href="https://wa.me/5522999748969" class="mt-6 bg-yellow-400 text-slate-900 py-3 rounded-xl font-bold text-center block">Contactar WhatsApp</a>
+                </div>
+            </div>
 
-    monthTitle.innerText = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentMonth);
+            <div class="card">
+                <span class="hidden">transporte traslado viaje rio aeropuerto transfer bus omnibus walter privado spin auto</span>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-slate-800">✈️ Traslados Rio - Arraial</h3>
+                    <div class="mt-4 space-y-4 text-sm">
+                        <div class="bg-slate-50 p-3 rounded-lg">
+                            <strong class="block text-blue-700">Auto Alquiler</strong>
+                            Calcular 4hs mínimo. 1h retiro + 3h viaje.
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg">
+                            <strong class="block text-blue-700">Omnibus 1001</strong>
+                            Tomar BRT desde Aeropuerto a Rodoviaria (30 min, R$15). Allí bus 1001. <a href="http://www.autoviacao1001.com.br" class="underline text-blue-500">Web 1001</a>.
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-lg">
+                            <strong class="block text-blue-700">Transfer Walter (Privado)</strong>
+                            Chevrolet Spin (hasta 6 pax). <br>
+                            2 pax: <strong>U$ 92</strong> | 6 pax: <strong>U$ 112</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    const firstDay = new Date(year, month, 1).getDay();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+            <div class="card">
+                <span class="hidden">super mercado compras comida fricarnes carne asado bebida heladera</span>
+                <div class="p-6">
+                    <span class="text-4xl">🛒</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">Super Fricarnes</h3>
+                    <p class="text-sm text-slate-600 mt-1">A 6 cuadras del depto.</p>
+                    <a href="https://www.google.com/maps/search/?api=1&query=Supermercado+Fricarnes+Arraial" target="_blank" class="text-blue-600 text-xs font-bold underline mt-2 block">Ver Mapa</a>
+                </div>
+            </div>
 
-    let startingIndex = firstDay === 0 ? 6 : firstDay - 1;
+            <div class="card">
+                <span class="hidden">lavadero ropa limpio centro servicio lavar</span>
+                <div class="p-6">
+                    <span class="text-4xl">🧺</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">Lavaderos</h3>
+                    <p class="text-sm text-slate-600 mt-1">Hay tres. Uno en el centro frente al cementerio.</p>
+                </div>
+            </div>
 
-    for (let i = 0; i < startingIndex; i++) {
-      grid.appendChild(Object.assign(document.createElement("div"), {className: "day empty"}));
-    }
+            <div class="card">
+                <span class="hidden">playa sol sombra sombrilla reposera alquiler ana diego comodidad</span>
+                <div class="p-6">
+                    <span class="text-4xl">⛱️</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">Alquiler Playa</h3>
+                    <p class="text-sm text-slate-600 mt-1"><strong>Quiosque da Ana</strong> (Preguntar por Diego).</p>
+                    <p class="text-blue-600 font-bold mt-2">R$ 60 / día</p>
+                    <p class="text-xs text-slate-500">(Sombrilla y reposeras)</p>
+                </div>
+            </div>
 
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dateObj = new Date(year, month, day);
-      
-      // Formateo manual YYYY-MM-DD
-      const y = dateObj.getFullYear();
-      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const d = String(dateObj.getDate()).padStart(2, '0');
-      const iso = `${y}-${m}-${d}`;
-      
-      const card = document.createElement("div");
-      card.className = "day";
-      card.innerText = day;
+        </div>
 
-      // --- LÓGICA DE BLOQUEO ---
-      // 1. Verificamos si es un día pasado
-      const isPast = dateObj < today;
-      
-      // 2. Verificamos si está en tu JSON de ocupados
-      const isBooked = unavailableDates.includes(iso);
+        <div id="tab-paseos" class="section-content hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <div class="card group border-emerald-200 border-2">
+                <span class="hidden">paseo excursión barco isla farol top brasil reserva militar</span>
+                <div class="h-40 overflow-hidden relative">
+                    <img src="https://images.unsplash.com/photo-1596395819057-d372252a1d27?auto=format&fit=crop&w=600" class="w-full h-full object-cover">
+                    <span class="absolute top-3 right-3 bg-yellow-400 text-slate-900 text-[10px] font-bold px-2 py-1 rounded">⭐ TOP 1 BRASIL</span>
+                </div>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-slate-800">Ilha do Farol</h3>
+                    <p class="text-sm text-slate-600 mt-2">Playa más linda según NatGeo. Reserva Natural y Militarizada.</p>
+                    <ul class="text-xs text-slate-600 mt-3 list-disc pl-4">
+                        <li>Única manera de ir: <strong>Paseo de Barco</strong>.</li>
+                        <li>Tiempo máximo en la isla: <strong>1 Hora</strong> (estricto).</li>
+                        <li>Está frente al Pontal de Atalaia.</li>
+                    </ul>
+                </div>
+            </div>
 
-      if (isPast || isBooked) {
-        card.classList.add("unavailable");
-        // No tiene onclick, así que no se puede elegir
-      } else {
-        card.classList.add("available");
-        if (selectedDates.includes(iso)) card.classList.add("selected");
-        card.onclick = () => toggleDate(iso);
-      }
-      
-      grid.appendChild(card);
-    }
-  }
+            <div class="card">
+                <span class="hidden">paseo excursión barco puerto tour gruta azul ballenas mar</span>
+                <div class="p-6">
+                    <span class="text-4xl">⛵</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">Paseo en Barco</h3>
+                    <p class="text-sm text-slate-600 mt-2">Lo mejor es ir al puerto para contratarlo.</p>
+                    <div class="bg-blue-50 p-3 rounded-lg mt-3">
+                        <p class="text-xs font-bold text-blue-800 uppercase mb-1">No te pierdas:</p>
+                        <p class="text-xs text-slate-700">Gruta Azul, Buraco do Meteorito, Ilha do Farol, Pontal.</p>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-3">🐋 <strong>Ballenas:</strong> Solo del 1/7 al 15/8 (excursión específica).</p>
+                </div>
+            </div>
 
-  function toggleDate(iso) {
-    if (selectedDates.includes(iso)) {
-      selectedDates = selectedDates.filter(d => d !== iso);
-    } else {
-      selectedDates.push(iso);
-    }
-    renderCalendar();
-    updateBar();
-  }
+            <div class="card">
+                <span class="hidden">centro noche caminar dos anjos feria artesanía música bares</span>
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-slate-800 mb-3">🏙️ Los 3 Centros</h3>
+                    <ul class="space-y-3 text-sm">
+                        <li class="pl-3 border-l-4 border-blue-500">
+                            <strong>Playa Grande:</strong> Bares, restaurantes, negocios y costanera.
+                        </li>
+                        <li class="pl-3 border-l-4 border-purple-500">
+                            <strong>Dos Anjos:</strong> Viernes y Sábado música en vivo, bares, food trucks y feria de artesanía.
+                        </li>
+                        <li class="pl-3 border-l-4 border-slate-500">
+                            <strong>Centro Arraial:</strong> La vida del pueblo (bancos, etc).
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-  function updateBar() {
-    const bar = document.getElementById("actionBar");
-    const count = document.getElementById("countLabel");
-    const link = document.getElementById("wppLink");
+            <div class="card">
+                <span class="hidden">cabo frio viaje paseo duna madre sunset atardecer auto</span>
+                <div class="p-6">
+                    <span class="text-4xl">🏜️</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-2">Cabo Frio</h3>
+                    <p class="text-sm text-slate-600 mt-2">A 10 minutos de Arraial.</p>
+                    <p class="text-sm font-bold text-slate-800 mt-2">Visitar la Duna Mãe</p>
+                    <p class="text-xs text-slate-500">Se llega en auto. Ideal para ver el atardecer.</p>
+                </div>
+            </div>
 
-    if (selectedDates.length > 0) {
-      bar.classList.add("visible");
-      selectedDates.sort();
-      count.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
-      
-      // Formateamos las fechas para que el mensaje de WhatsApp sea más lindo (DD/MM)
-      const fechasLindas = selectedDates.map(f => {
-        const [y, m, d] = f.split("-");
-        return `${d}/${m}`;
-      });
+        </div>
 
-      const msg = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para estos días: ${fechasLindas.join(", ")}`);
-      link.href = `https://wa.me/${MI_TELEFONO}?text=${msg}`;
-    } else {
-      bar.classList.remove("visible");
-    }
-  }
+    </main>
 
-  function changeMonth(diff) {
-    currentMonth.setMonth(currentMonth.getMonth() + diff);
-    renderCalendar();
-  }
+    <a href="https://www.google.com/maps/search/?api=1&query=Prainha+Arraial+do+Cabo" target="_blank" id="floatingHome" class="bg-blue-600 text-white flex items-center gap-3 px-6 py-4 rounded-full font-bold shadow-2xl border-2 border-white/50 hover:bg-blue-700">
+        <span class="text-xl">🏠</span> VOLVER AL DEPTO
+    </a>
 
-  let reviews = [];
-let currentReview = 0;
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('btn-' + tabId).classList.add('tab-active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
-async function loadReviews() {
-  try {
-    const res = await fetch("reviews.json?v=" + Date.now());
-    reviews = await res.json();
-    renderReview();
-  } catch {
-    console.warn("No se pudieron cargar reviews");
-  }
-}
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.card');
+            
+            cards.forEach(card => {
+                // Usamos textContent para que lea los spans ocultos con las etiquetas
+                const text = card.textContent.toLowerCase();
+                if(text.includes(term)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
 
-function renderReview() {
+            if(term.length > 0) {
+                document.querySelectorAll('.section-content').forEach(el => el.classList.remove('hidden'));
+            } else {
+                switchTab('playas');
+            }
+        });
 
-  if (!reviews.length) return;
-
-  const r = reviews[currentReview];
-
-  const box = document.getElementById("reviewBox");
-
-  box.innerHTML = `
-    <div class="review-name">${r.name}</div>
-    <div class="review-date">${r.date}</div>
-    <div class="review-stars">${"★".repeat(r.stars)}</div>
-    <div class="review-text">${r.text}</div>
-  `;
-}
-
-function nextReview() {
-  currentReview = (currentReview + 1) % reviews.length;
-  renderReview();
-}
-
-function prevReview() {
-  currentReview =
-    (currentReview - 1 + reviews.length) % reviews.length;
-  renderReview();
-}
-
-
-  loadData();
-  loadReviews();
-  setInterval(nextReview, 4500);
-
-</script>
-
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('floatingHome');
+            if (window.scrollY > 200) {
+                btn.classList.add('show');
+            } else {
+                btn.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>

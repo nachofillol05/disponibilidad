@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reserva</title>
+  <link rel="icon" type="image/jpeg" href="./arraialLogo.jpeg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #020617;
+      --card: rgba(30, 41, 59, 0.4);
+      --available: #22c55e;
+      --selected: #38bdf8;
+      --unavailable: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+
+    body {
+      margin: 0;
+      background: #020617;
+      background-image: radial-gradient(circle at 50% -20%, #1e293b, #020617);
+      color: var(--text);
+      padding: 20px;
+      min-height: 100vh;
+      padding-bottom: 120px;
+    }
+
+    .container { max-width: 500px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 30px; }
+    h1 { font-size: 1.8rem; margin: 0; background: linear-gradient(to right, #fff, var(--muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    .month-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      background: var(--card);
+      padding: 8px 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .month-nav h2 { margin: 0; font-size: 1.1rem; text-transform: capitalize; font-weight: 500; }
+
+    .nav-btn {
+      background: rgba(255,255,255,0.05);
+      border: none;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: 0.2s;
+    }
+    .nav-btn:hover { background: var(--selected); color: #000; }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .day {
+      aspect-ratio: 1/1;
+      background: var(--card);
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.9rem;
+    }
+
+    .day.empty { background: transparent; border: none; cursor: default; }
+
+    /* Estilo para días Libres */
+    .day.available { 
+      border-color: rgba(34, 197, 94, 0.15); 
+    }
+    .day.available:hover { 
+      transform: scale(1.1); 
+      border-color: var(--available);
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    /* Estilo para días Seleccionados */
+    .day.selected {
+      background: var(--selected) !important;
+      color: #000;
+      font-weight: 800;
+      border-color: #fff;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Estilo para días Ocupados (vienen en el JSON) */
+    .day.unavailable {
+      opacity: 0.15;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    /* Barra Flotante */
+    .action-bar {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 400px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 12px 20px;
+      border-radius: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+    }
+
+    .action-bar.visible { bottom: 25px; }
+
+    .btn-wpp {
+      background: #25d366;
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      transition: 0.2s;
+    }
+    .btn-wpp:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3); }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 25px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+
+    /* REVIEWS SLIDER */
+
+.reviews-slider {
+  margin-top: 40px;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.review-slide {
+  flex: 1;
+  background: rgba(15,23,42,0.7);
+  padding: 15px;
+  border-radius: 12px;
+  min-height: 150px;
+}
+
+.slide-btn {
+  background: rgba(255,255,255,0.05);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slide-btn:hover {
+  background: var(--selected);
+  color: black;
+}
+
+.review-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.review-date {
+  font-size: 0.65rem;
+  color: var(--muted);
+}
+
+.review-stars {
+  color: gold;
+  font-size: 0.75rem;
+  margin: 5px 0;
+}
+
+.review-text {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Disponibilidad</h1>
+  </header>
+
+  <div class="month-nav">
+    <button class="nav-btn" onclick="changeMonth(-1)">❮</button>
+    <h2 id="monthTitle"></h2>
+    <button class="nav-btn" onclick="changeMonth(1)">❯</button>
+  </div>
+
+  <div class="weekdays">
+    <div>LUN</div><div>MAR</div><div>MIE</div><div>JUE</div><div>VIE</div><div>SAB</div><div>DOM</div>
+  </div>
+
+  <div id="calendarGrid" class="calendar-grid"></div>
+
+  <div class="legend">
+    <span><span class="dot" style="background: var(--available)"></span>Libre</span>
+    <span><span class="dot" style="background: var(--unavailable)"></span>Ocupado</span>
+    <span><span class="dot" style="background: var(--selected)"></span>Tu selección</span>
+  </div>
+
+  <section class="reviews-slider">
+
+  <h2>⭐ Opiniones</h2>
+
+  <div class="slider-wrapper">
+
+    <button class="slide-btn" onclick="prevReview()">❮</button>
+
+    <div id="reviewBox" class="review-slide"></div>
+
+    <button class="slide-btn" onclick="nextReview()">❯</button>
+
+  </div>
+
+</section>
+</div>
+
+<div id="actionBar" class="action-bar">
+  <div>
+    <div id="countLabel" style="font-weight: 700; font-size: 0.9rem;">0 días</div>
+    <div style="font-size: 0.65rem; color: var(--muted);">Interesado en estos días...</div>
+  </div>
+  <a id="wppLink" href="#" target="_blank" class="btn-wpp">Consultar</a>
+</div>
+
+<script>
+  let currentMonth = new Date();
+  let selectedDates = [];
+  let unavailableDates = []; 
+  const MI_TELEFONO = "543515472701"; // <--- TU NÚMERO AQUÍ
+
+  // Obtenemos la fecha de HOY a medianoche para comparar correctamente
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  async function loadData() {
+    try {
+      const res = await fetch("availability.json?v=" + Date.now());
+      unavailableDates = await res.json();
+    } catch (e) {
+      console.warn("No se pudo cargar availability.json");
+    }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById("calendarGrid");
+    const monthTitle = document.getElementById("monthTitle");
+    grid.innerHTML = "";
+
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    monthTitle.innerText = new Intl.DateTimeFormat('es-ES', { month: 'long', year: 'numeric' }).format(currentMonth);
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    let startingIndex = firstDay === 0 ? 6 : firstDay - 1;
+
+    for (let i = 0; i < startingIndex; i++) {
+      grid.appendChild(Object.assign(document.createElement("div"), {className: "day empty"}));
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateObj = new Date(year, month, day);
+      
+      // Formateo manual YYYY-MM-DD
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      const iso = `${y}-${m}-${d}`;
+      
+      const card = document.createElement("div");
+      card.className = "day";
+      card.innerText = day;
+
+      // --- LÓGICA DE BLOQUEO ---
+      // 1. Verificamos si es un día pasado
+      const isPast = dateObj < today;
+      
+      // 2. Verificamos si está en tu JSON de ocupados
+      const isBooked = unavailableDates.includes(iso);
+
+      if (isPast || isBooked) {
+        card.classList.add("unavailable");
+        // No tiene onclick, así que no se puede elegir
+      } else {
+        card.classList.add("available");
+        if (selectedDates.includes(iso)) card.classList.add("selected");
+        card.onclick = () => toggleDate(iso);
+      }
+      
+      grid.appendChild(card);
+    }
+  }
+
+  function toggleDate(iso) {
+    if (selectedDates.includes(iso)) {
+      selectedDates = selectedDates.filter(d => d !== iso);
+    } else {
+      selectedDates.push(iso);
+    }
+    renderCalendar();
+    updateBar();
+  }
+
+  function updateBar() {
+    const bar = document.getElementById("actionBar");
+    const count = document.getElementById("countLabel");
+    const link = document.getElementById("wppLink");
+
+    if (selectedDates.length > 0) {
+      bar.classList.add("visible");
+      selectedDates.sort();
+      count.innerText = `${selectedDates.length} ${selectedDates.length === 1 ? 'día elegido' : 'días elegidos'}`;
+      
+      // Formateamos las fechas para que el mensaje de WhatsApp sea más lindo (DD/MM)
+      const fechasLindas = selectedDates.map(f => {
+        const [y, m, d] = f.split("-");
+        return `${d}/${m}`;
+      });
+
+      const msg = encodeURIComponent(`¡Hola! Estoy interesado en alquilar el departamento para estos días: ${fechasLindas.join(", ")}`);
+      link.href = `https://wa.me/${MI_TELEFONO}?text=${msg}`;
+    } else {
+      bar.classList.remove("visible");
+    }
+  }
+
+  function changeMonth(diff) {
+    currentMonth.setMonth(currentMonth.getMonth() + diff);
+    renderCalendar();
+  }
+
+  let reviews = [];
+let currentReview = 0;
+
+async function loadReviews() {
+  try {
+    const res = await fetch("reviews.json?v=" + Date.now());
+    reviews = await res.json();
+    renderReview();
+  } catch {
+    console.warn("No se pudieron cargar reviews");
+  }
+}
+
+function renderReview() {
+
+  if (!reviews.length) return;
+
+  const r = reviews[currentReview];
+
+  const box = document.getElementById("reviewBox");
+
+  box.innerHTML = `
+    <div class="review-name">${r.name}</div>
+    <div class="review-date">${r.date}</div>
+    <div class="review-stars">${"★".repeat(r.stars)}</div>
+    <div class="review-text">${r.text}</div>
+  `;
+}
+
+function nextReview() {
+  currentReview = (currentReview + 1) % reviews.length;
+  renderReview();
+}
+
+function prevReview() {
+  currentReview =
+    (currentReview - 1 + reviews.length) % reviews.length;
+  renderReview();
+}
+
+
+  loadData();
+  loadReviews();
+  setInterval(nextReview, 4500);
+
+</script>
+
+</body>
+</html>
