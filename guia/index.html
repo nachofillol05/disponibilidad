@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/jpeg" href="./arraialLogo.jpeg">
+    <link rel="icon" type="image/jpeg" href="./fotos/arraialLogo.jpeg">
     <title>Arraial para Argentinos | La Guía</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -63,12 +63,30 @@
             transform: scale(0);
         }
         #floatingHome.show { transform: scale(1); }
+
+
+        /* Reveal Animation */
+        .reveal {
+        opacity: 0;
+        transform: translateY(40px);
+        transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .reveal.show {
+        opacity: 1;
+        transform: translateY(0);
+        }
+
     </style>
 </head>
 <body class="pb-32">
 
     <header class="relative bg-slate-900 pt-12 pb-20 px-6 rounded-b-[50px] overflow-hidden shadow-2xl text-center">
-        <img src="https://images.unsplash.com/photo-1590523278191-995cbcda646b?auto=format&fit=crop&w=1000" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        <img
+  id="heroImg"
+  src="https://images.unsplash.com/photo-1590523278191-995cbcda646b?auto=format&fit=crop&w=1000"
+  class="absolute inset-0 w-full h-[110%] object-cover opacity-40">
+
         <div class="relative z-10 max-w-2xl mx-auto">
             <img src="./fotos/arraialLogo.jpeg" alt="Logo" class="h-20 mx-auto mb-4 drop-shadow-lg">
             
@@ -76,7 +94,7 @@
             <p class="text-slate-200 text-sm mt-2 font-medium">La guía más completa de la zona</p>
             
             <a href="/disponibilidad/" target="_blank" class="inline-block mt-6 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white transition shadow-xl">
-                🗓️ Consultar disponibilidad
+                🗓️ RESERVA YA
             </a>
         </div>
     </header>
@@ -101,7 +119,7 @@
 
         <div id="tab-playas" class="section-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol arena buceo tortugas agua prainha nadar snorkeling</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/prainha.avif" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -124,7 +142,7 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol arena pontal atalaia escalera escalera auto 5am cola taxi entrada</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/pontal.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -148,7 +166,7 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol arena forno sendero caminata trekking barco taxi buceo snorkel transparente</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/forno.jpeg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -166,7 +184,7 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol arena grande sunset atardecer olas surf boulevard noche caminar</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/praia grande.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -180,7 +198,7 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol arena gracainha tortugas escondida tranquilo sendero</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/gracainha.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
@@ -194,11 +212,11 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol brava difícil guía atardecer olas aventura</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/praia brava.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                    <span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">❕Difícil Acceso</span>
+                    <span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">❕DIFÍCIL ACCESO</span>
                 </div>
                 <div class="p-5 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold text-slate-800">Praia Brava</h3>
@@ -212,11 +230,11 @@
                 </div>
             </div>
 
-            <div class="card group">
+            <div class="card group reveal">
                 <span class="hidden">playa mar sol brava difícil guía atardecer olas aventura</span>
                 <div class="h-48 overflow-hidden relative">
                     <img src="./fotos/praia-dos-anjos.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                    <span class="absolute top-3 left-3 bg-red-600 text-white text-[10px] font-bold px-2 py-1 rounded">📜Historica</span>
+                    <span class="absolute top-3 left-3 bg-slate-600 text-white text-[10px] font-bold px-2 py-1 rounded">📜HISTÓRICA</span>
                 </div>
                 <div class="p-5 flex flex-col flex-grow">
                     <h3 class="text-xl font-bold text-slate-800">Praia Dos Anjos</h3>
@@ -233,7 +251,7 @@
 
         <div id="tab-comer" class="section-content hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
-            <div class="card border-l-4 border-l-yellow-400">
+            <div class="card border-l-4 border-l-yellow-400 reveal">
                 <span class="hidden">comer almuerzo cena restaurante gringo caipirinha trago bebida alcohol hambre cenar almorzar argentino</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -250,7 +268,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer desayuno mañana libre buffet ocean view hotel hambre</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -266,7 +284,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-green-500">
+            <div class="card border-l-4 border-l-green-500 reveal">
                 <span class="hidden">comer cena delivery casa pedir sanduba hamburguesa salgado whatsapp hambre noche</span>
                 <div class="p-6">
                     <h3 class="text-xl font-bold text-slate-800 mb-4">🛵 Delivery</h3>
@@ -289,7 +307,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer cena almuerzo pizza postre hambre restaurante piza pisa pizzaria</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -301,7 +319,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer cena almuerzo pizza postre hambre restaurante piza pisa pizzaria desayuno quintal gastronomia cafe</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -313,7 +331,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer cena almuerzo hamburguesa top brasa carne hambre restaurante</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -325,7 +343,7 @@
                 </div>
             </div>
 
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer almuerzo pollo frango rotiseria mediodía vianda quentinha kilo hambre</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -337,7 +355,7 @@
                     <a href="https://maps.app.goo.gl/wkmZaqU99p9CLHkr7" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
                 </div>
             </div>
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer almuerzo cena restaurante gentileza hambre gourmet</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -348,7 +366,7 @@
                     <a href="https://maps.app.goo.gl/KajJKmbuzndXeLik6" target="_blank" class="btn-map mt-4">📍 Ver Ubicación</a>
                 </div>
             </div>
-            <div class="card border-l-4 border-l-blue-400">
+            <div class="card border-l-4 border-l-blue-400 reveal">
                 <span class="hidden">comer almuerzo cena restaurante prainha gourmet hambre boulevard</span>
                 <div class="p-6">
                     <div class="flex justify-between items-start">
@@ -595,6 +613,38 @@
                 btn.classList.remove('show');
             }
         });
+
+        // ==========================
+        // REVEAL ON SCROLL
+        // ==========================
+        const reveals = document.querySelectorAll(".reveal");
+
+        const observer = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("show");
+            }
+            });
+        },
+        { threshold: 0.15 }
+        );
+
+        reveals.forEach(r => observer.observe(r));
+
+        // ==========================
+        // HERO PARALLAX
+        // ==========================
+        const heroImg = document.getElementById("heroImg");
+
+        window.addEventListener("scroll", () => {
+        if (!heroImg) return;
+
+        heroImg.style.transform =
+            `translateY(${window.scrollY * 0.25}px)`;
+        });
+
+
     </script>
 </body>
 </html>

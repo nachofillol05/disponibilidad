@@ -6,7 +6,7 @@
 
 <title>El Departamento | Arraial</title>
 
-<link rel="icon" type="image/jpeg" href="/guia/fotos/arraialLogo.jpeg">
+<link rel="icon" type="image/jpeg" href="./guia/fotos/arraialLogo.jpeg">
 
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -16,6 +16,12 @@
 body{
   font-family:'Outfit',sans-serif;
   background:#f1f5f9;
+}
+
+html, body {
+  max-width: 100%;
+  overflow-x: hidden; /* Esto mata cualquier franja blanca a la derecha en toda la web */
+  position: relative;
 }
 
 .card{
@@ -32,6 +38,51 @@ body{
 .no-scrollbar::-webkit-scrollbar{
   display:none;
 }
+
+/* Animaciones suaves */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease-out;
+}
+
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fade lateral */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: all 0.8s ease-out;
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: all 0.8s ease-out;
+}
+
+.reveal-left.show,
+.reveal-right.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.gallery img {
+  transition: all .4s ease;
+  cursor: pointer;
+}
+
+.gallery img:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+
+
+
 </style>
 </head>
 
@@ -39,44 +90,42 @@ body{
 
 
 <!-- NAVBAR -->
-<nav class="fixed top-0 w-full bg-white/80 backdrop-blur border-b z-50">
+<nav class="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-b border-white/30 z-[1000] shadow-sm">
+  <div class="w-full max-w-[100vw] mx-auto px-3 py-3 flex justify-between items-center overflow-hidden">
 
-<div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-1 font-black text-blue-600 text-sm sm:text-base shrink-0">
+      🌴 Arraial
+    </div>
 
-<div class="flex items-center gap-2 font-black text-blue-600">
-  🌴 Arraial
-</div>
+    <div class="flex items-center gap-2 sm:gap-4 font-bold overflow-hidden">
+      <a href="/guia" class="text-[10px] sm:text-xs uppercase tracking-tight hover:text-blue-600 whitespace-nowrap">
+        ¿Qué hacer?
+      </a>
+      <a href="/disponibilidad/" class="text-[10px] sm:text-xs uppercase tracking-tight hover:text-blue-600 whitespace-nowrap">
+        Disponibilidad
+      </a>
+      <a href="/depto.html" class="text-[10px] sm:text-xs uppercase tracking-tight bg-blue-50 text-blue-600 px-2 py-1 rounded-md shrink-0 whitespace-nowrap">
+        Depto
+      </a>
+    </div>
 
-<div class="flex gap-4 text-sm font-semibold">
-
-<a href="/guia" class="hover:text-blue-600">
-¿Que hacer?
-</a>
-
-<a href="/disponibilidad/" class="hover:text-blue-600">
-Disponibilidad
-</a>
-
-<a href="/depto.html" class="text-blue-600">
-Depto
-</a>
-
-</div>
-
-</div>
-
+  </div>
 </nav>
 
 
 <!-- HERO -->
-<header class="relative h-[70vh] flex items-end">
+<header
+ class="relative h-[75vh] flex items-end overflow-hidden">
 
-<img src="https://i.pinimg.com/736x/24/7f/a9/247fa9ddc85448878cb39020456f8f0f.jpg"
- class="absolute inset-0 w-full h-full object-cover">
+<img
+ id="heroImg"
+ src="https://i.pinimg.com/736x/24/7f/a9/247fa9ddc85448878cb39020456f8f0f.jpg"
+ class="absolute inset-0 w-full h-[110%] object-cover">
 
-<div class="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10"></div>
 
-<div class="relative z-10 max-w-4xl mx-auto px-6 pb-10 text-white">
+<div class="relative z-10 max-w-4xl mx-auto px-6 pb-12 text-white reveal">
+
 
 <span class="bg-yellow-400 text-slate-900 px-4 py-1 rounded-full text-xs font-black uppercase">
 A metros de Prainha
@@ -98,7 +147,7 @@ Comodidad, buena ubicación y vista al mar para unas vacaciones inolvidables.
 <!-- GALERIA -->
 <section class="max-w-6xl mx-auto px-4 mt-6">
 
-<div class="card p-4 relative">
+<div class="card p-4 relative reveal">
 
 <h2 class="font-bold text-lg mb-3">📸 Galería</h2>
 
@@ -124,7 +173,8 @@ Comodidad, buena ubicación y vista al mar para unas vacaciones inolvidables.
 <!-- Contenedor -->
 <div
   id="gallery"
-  class="flex gap-4 overflow-x-auto no-scrollbar scroll-smooth">
+  class="gallery flex gap-4 overflow-x-auto no-scrollbar scroll-smooth">
+
 
 <img src="/fotosDepto/foto1.jpeg" class="h-60 md:h-72 rounded-xl flex-shrink-0">
 <img src="/fotosDepto/foto2.jpeg" class="h-60 md:h-72 rounded-xl flex-shrink-0">
@@ -142,7 +192,7 @@ Comodidad, buena ubicación y vista al mar para unas vacaciones inolvidables.
 <!-- HIGHLIGHTS -->
 <section class="max-w-6xl mx-auto px-4 mt-6">
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 reveal">
 
 <div class="card p-4 text-center">
 🛏️
@@ -172,7 +222,7 @@ Comodidad, buena ubicación y vista al mar para unas vacaciones inolvidables.
 <!-- DESCRIPCION -->
 <section class="max-w-6xl mx-auto px-4 mt-6">
 
-<div class="card p-6">
+<div class="card p-6 reveal">
 
 <h2 class="text-xl font-bold mb-3">
 🏡 Sobre el alojamiento
@@ -204,7 +254,7 @@ tranquilidad y una ubicación estratégica.
     <div class="grid md:grid-cols-2 gap-6 items-center">
 
       <!-- Texto -->
-      <div>
+      <div class="reveal-left">
 
         <p class="text-slate-600 leading-relaxed mb-4">
           El departamento está ubicado en Prainha,
@@ -226,7 +276,7 @@ tranquilidad y una ubicación estratégica.
       </div>
 
       <!-- Mapa -->
-      <div class="w-full h-[300px] md:h-[350px] rounded-xl overflow-hidden border">
+      <div class="w-full h-[300px] md:h-[350px] rounded-xl overflow-hidden border reveal-right">
 
         <iframe
           src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1628.7861005710333!2d-42.0260472!3d-22.9598811!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9719627a6f81df%3A0xc6cb6a7d91d2ea53!2sR.%20Gediel%20Gon%C3%A7alves%20Marinho%2C%2010%20-%20Prainha%2C%20Arraial%20do%20Cabo%20-%20RJ%2C%2028930-000%2C%20Brasil!5e1!3m2!1ses-419!2sar!4v1770229045382!5m2!1ses-419!2sar"
@@ -250,7 +300,7 @@ tranquilidad y una ubicación estratégica.
 <!-- VIDEO -->
 <section class="max-w-6xl mx-auto px-4 mt-6">
 
-<div class="card p-4 md:p-6">
+<div class="card p-4 md:p-6 reveal">
 
 <h2 class="text-xl font-bold mb-4">
 🎥 Recorrido virtual
@@ -284,7 +334,7 @@ tranquilidad y una ubicación estratégica.
 
 <div class="card p-6">
 
-<h2 class="text-xl font-bold mb-4">
+<h2 class="text-xl font-bold mb-4 reveal">
 ⭐ Servicios incluidos
 </h2>
 
@@ -308,7 +358,7 @@ tranquilidad y una ubicación estratégica.
 <!-- GUIA -->
 <section class="max-w-6xl mx-auto px-4 mt-6">
 
-<div class="card p-6 bg-gradient-to-r from-blue-50 to-cyan-50">
+<div class="card p-6 bg-gradient-to-r from-blue-50 to-cyan-50 reveal-left">
 
 <h2 class="text-xl font-bold mb-3">
 🗺️ Te ayudamos a vivir Arraial al máximo
@@ -335,7 +385,7 @@ restaurantes y tips para que aproveches cada día.
 <!-- CTA FINAL -->
 <section class="max-w-6xl mx-auto px-4 mt-10 mb-16">
 
-<div class="card p-6 text-center bg-gradient-to-br from-blue-600 to-cyan-500 text-white">
+<div class="card p-6 text-center bg-gradient-to-br from-blue-600 to-cyan-500 text-white reveal-right">
 
 <h2 class="text-2xl font-black mb-2">
 ¿Listo para tus vacaciones?
@@ -351,18 +401,25 @@ en uno de los mejores puntos de Arraial.
 <div class="flex justify-center gap-4 flex-wrap">
 
 <a href="/disponibilidad/"
- class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold">
+ class="bg-white text-blue-600 px-6 py-3 rounded-xl font-bold
+        hover:scale-105 hover:shadow-xl transition">
+
 
 🗓️ Ver Disponibilidad
 
 </a>
 
 <a href="https://wa.me/543515472701"
- class="bg-green-500 px-6 py-3 rounded-xl font-bold">
+ class="relative overflow-hidden bg-green-500 px-6 py-3 rounded-xl font-bold
+        hover:scale-105 transition">
 
 💬 Consultar por WhatsApp
 
+<span
+ class="absolute inset-0 bg-white/20 opacity-0 hover:opacity-100 transition">
+</span>
 </a>
+
 
 </div>
 
@@ -476,6 +533,45 @@ prevBtn?.addEventListener("click", () => {
     behavior: "smooth"
   });
 });
+
+// ==========================
+// ANIMACIONES AL SCROLL
+// ==========================
+
+const reveals = document.querySelectorAll(
+  ".reveal, .reveal-left, .reveal-right"
+);
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+      }
+    });
+  },
+  {
+    threshold: 0.15,
+  }
+);
+
+reveals.forEach((el) => observer.observe(el));
+
+// ==========================
+// PARALLAX HERO
+// ==========================
+
+const heroImg = document.getElementById("heroImg");
+
+window.addEventListener("scroll", () => {
+  if (!heroImg) return;
+
+  const scroll = window.scrollY;
+
+  heroImg.style.transform = `translateY(${scroll * 0.25}px)`;
+});
+Z
+
 
 // ==========================
 // INICIAR
