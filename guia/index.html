@@ -61,16 +61,6 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Botón Flotante */
-        #floatingHome {
-            position: fixed; bottom: 25px; right: 20px; z-index: 90;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            transform: scale(0);
-        }
-        #floatingHome.show { transform: scale(1); }
-
-
         /* Reveal Animation */
         .reveal {
         opacity: 0;
@@ -83,9 +73,42 @@
         transform: translateY(0);
         }
 
+        /* Botón WhatsApp */
+        #floatingWhatsapp {
+            position: fixed;
+            bottom: 25px;
+            right: 20px;
+            z-index: 95;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #25D366;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #floatingWhatsapp:hover {
+            transform: scale(1.08);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.25);
+        }
+
+        #floatingWhatsapp img {
+            width: 30px;
+            height: 30px;
+        }
+
+
     </style>
 </head>
 <body class="pb-32">
+    <a href="https://wa.me/543512604802?text=Hola!%20Estoy%20viendo%20la%20guía%20de%20Arraial%20y%20quiero%20consultar%20por%20el%20departamento."
+        target="_blank" id="floatingWhatsapp" aria-label="WhatsApp">
+        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp">
+    </a>
+
 
     <header class="relative bg-slate-900 pt-12 pb-20 px-6 rounded-b-[50px] overflow-hidden shadow-2xl text-center">
         <img
@@ -100,7 +123,10 @@
 
             <p class="text-slate-200 text-sm mt-2 font-medium">La guía más completa de la zona</p>
             
-            <a href="/disponibilidad/" target="_blank" class="inline-block mt-6 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white transition shadow-xl">
+            <a href="/"  class="inline-block mt-6 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white transition shadow-xl">
+                🏡 VER DEPARTAMENTO
+            </a>
+            <a href="/disponibilidad/" class="inline-block mt-6 bg-yellow-400 text-slate-900 px-8 py-3 rounded-full font-black text-sm uppercase tracking-widest hover:bg-white transition shadow-xl">
                 🗓️ RESERVA YA
             </a>
         </div>
@@ -580,10 +606,6 @@
 
     </main>
 
-    <a href="https://maps.app.goo.gl/DCAQj3ovBTSnAZPK7" target="_blank" id="floatingHome" class="bg-blue-600 text-white flex items-center gap-3 px-6 py-4 rounded-full font-bold shadow-2xl border-2 border-white/50 hover:bg-blue-700">
-        <span class="text-xl">🏠</span> VOLVER AL DEPTO
-    </a>
-
     <script>
         function switchTab(tabId) {
             document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
@@ -611,15 +633,6 @@
                 document.querySelectorAll('.section-content').forEach(el => el.classList.remove('hidden'));
             } else {
                 switchTab('playas');
-            }
-        });
-
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById('floatingHome');
-            if (window.scrollY > 200) {
-                btn.classList.add('show');
-            } else {
-                btn.classList.remove('show');
             }
         });
 
