@@ -165,7 +165,7 @@
     <span><span class="dot" style="background: var(--selected-light)"></span>Seleccionado</span>
   </div>
 
-  <section class="reviews-slider">
+  <section id="opiniones" class="reviews-slider">
     <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom:10px;">
       <button class="nav-btn" style="width:25px; height:25px;" onclick="prevReview()">❮</button>
       <h2 style="font-size:0.8rem; margin:0;">⭐ OPINIONES</h2>
@@ -244,6 +244,17 @@
       grid.appendChild(card);
     }
   }
+
+  window.addEventListener('load', () => {
+  if (window.location.hash === '#opiniones') {
+    const elemento = document.getElementById('opiniones');
+    if (elemento) {
+      setTimeout(() => {
+        elemento.scrollIntoView({ behavior: 'smooth' });
+      }, 500); // Le damos medio segundo para que el slider aparezca
+    }
+  }
+});
 
   function checkIfRangeIsFree(start, end) {
     let curr = new Date(start + "T00:00:00"), last = new Date(end + "T00:00:00");
