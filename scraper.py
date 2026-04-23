@@ -1,13 +1,12 @@
 import requests
-import re
 import json
 import time
 import random
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 BASE = "https://www.temporadalivre.com/es/properties/143886-cobertura-com-churrasqueira-vista-ao-mar-30-metros-prainha-vaga-carro"
 
-# headers más realistas
 HEADERS = {
     "User-Agent": random.choice([
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/122.0 Safari/537.36",
@@ -24,40 +23,50 @@ MESES = {
     "sep": 9, "oct": 10, "nov": 11, "dic": 12
 }
 
-
 session = requests.Session()
 session.headers.update(HEADERS)
 
 
-def get_month(date, retries=3):
+def get_month(date):
     url = f"{BASE}/calendar?date={date}"
-
-    for i in range(retries):
-        try:
-            r = session.get(url, timeout=20)
-            r.raise_for_status()
-            return r.text
-
-        except requests.RequestException:
-            if i == retries - 1:
-                raise
-            time.sleep(2 + random.random())
-
-    return ""
+    r = session.get(url, timeout=20)
+    r.raise_for_status()
+    return r.text
 
 
 def parse_unavailable(html, year):
     unavailable = []
 
-    matches = re.findall(r"(\d{1,2})\s*(\w{3})Indisp\.", html)
+    soup = BeautifulSoup(html, "html.parser")
+    days = soup.find_all("td", class_="day")
 
-    for day, mes in matches:
+    for day_cell in days:
+        date_span = day_cell.find("span", class_="date")
+        price_span = day_cell.find("span", class_="price")
+
+        if not date_span or not price_span:
+            continue
+
+        # ejemplo: "13 jun"
+        date_text = date_span.text.strip()
+        parts = date_text.split()
+
+        if len(parts) != 2:
+            continue
+
+        day, mes = parts
         mes_num = MESES.get(mes.lower())
+
         if not mes_num:
             continue
 
-        fecha = datetime(year, mes_num, int(day)).strftime("%Y-%m-%d")
-        unavailable.append(fecha)
+        # ejemplo: "--" o "R$ 275"
+        price_text = price_span.text.strip()
+
+        # 🔥 clave: "--" = ocupado
+        if price_text == "--":
+            fecha = datetime(year, mes_num, int(day)).strftime("%Y-%m-%d")
+            unavailable.append(fecha)
 
     return unavailable
 
@@ -66,20 +75,16 @@ def generate_months(months_ahead=18):
     today = datetime.today()
     months = []
 
-    year = today.year
-    month = today.month
-
     for i in range(months_ahead):
-        m = (month + i - 1) % 12 + 1
-        y = year + (month + i - 1) // 12
-        months.append(f"{y}-{m:02d}-01")
+        month = (today.month + i - 1) % 12 + 1
+        year = today.year + (today.month + i - 1) // 12
+        months.append(f"{year}-{month:02d}-01")
 
     return months
 
 
 def human_delay():
-    # delay variable tipo humano
-    time.sleep(random.uniform(0.8, 2.2))
+    time.sleep(random.uniform(0.8, 2.0))
 
 
 # 🔥 MAIN
