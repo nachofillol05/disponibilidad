@@ -3,7 +3,7 @@ name: Update data
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/30 * * * *"
 
 jobs:
   scrape:
@@ -23,7 +23,6 @@ jobs:
       - name: Install deps
         run: pip install requests beautifulsoup4 python-dateutil
 
-      # ⬇️ Pull ANTES de tocar archivos
       - name: Sync with remote
         run: |
           git config user.name "github-actions"
@@ -35,7 +34,7 @@ jobs:
           python scraper.py
           python scrape_reviews.py
 
-      - name: Commit and push
+      - name: Commit, push and deploy
         run: |
           if git diff --quiet; then
             echo "No hay cambios"
@@ -45,3 +44,4 @@ jobs:
           git add availability.json reviews.json
           git commit -m "update data"
           git push origin main
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
